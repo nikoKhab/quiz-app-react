@@ -11,6 +11,9 @@ const Question = (props: Props) => {
       <input type="radio" name="0" id="" />
       <input type="radio" name="0" id="" />
       <input type="radio" name="0" id="" />
+      <button onClick={() => props.handleChange(props.index + 1)}>
+        submit
+      </button>
     </>
   );
 };

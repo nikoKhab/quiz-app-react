@@ -6,7 +6,9 @@ function App() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const handleChildEvent = (data: number) => {
     setCurrentQuestionIndex(data);
-    console.log(currentQuestionIndex);
+    if (currentQuestionIndex > 10) {
+      return;
+    }
   };
 
   return (

@@ -1,56 +1,75 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface Props {
   index: number;
-  handleChange: void;
-}
-
-interface QuizQuestion {
-  type: "multiple" | "boolean"; // Assuming the type can be either "multiple" or "boolean"
-  difficulty: "easy" | "medium" | "hard";
-  category: string;
-  question: string;
-  correct_answer: string;
-  incorrect_answers: string[];
+  handleChange: (newIndex: number) => void; // Correct function type
 }
 
 const Question = (props: Props) => {
-  // https://opentdb.com/api.php?amount=10&category=18&difficulty=easy&type=multiple
-  const [datan, setDatan] = useState([]);
-  const [currentQuestion, setCurrentQuestion] = useState();
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [currentQuestionState, setCurrentQuestionState] = useState<any>(null);
+  const [updatedAnswers, setUpdatedAnswers] = useState<string[]>([]);
+  const answerRef = useRef("");
+  const [score, setScore] = useState<number>(0);
 
   useEffect(() => {
-    const myRequest = new Request(
+    fetch(
       "https://opentdb.com/api.php?amount=10&category=18&difficulty=easy&type=multiple"
-    );
-
-    fetch(myRequest)
+    )
       .then((response) => response.json())
       .then((data) => {
-        console.log(currentQuestion);
-        console.log(data.results[props.index]);
-        setCurrentQuestion(data.results[props.index]);
-        console.log(currentQuestion);
+        setQuestions(data.results);
       });
   }, []);
 
+  useEffect(() => {
+    if (questions.length > 0 && props.index < questions.length) {
+      const question = questions[props.index];
+      setCurrentQuestionState(question);
+      combineAndRandomize(question);
+    }
+  }, [questions, props.index]);
+
+  const shuffle = (array: string[]) => {
+    return array.sort(() => Math.random() - 0.5);
+  };
+
+  const combineAndRandomize = (question: any) => {
+    const answersUpdated = [
+      ...question.incorrect_answers,
+      question.correct_answer,
+    ];
+    setUpdatedAnswers(shuffle(answersUpdated));
+  };
+
+  if (!currentQuestionState) return <p>Loading...</p>;
+
+  const handleSubmit = () => {
+    props.handleChange(props.index + 1);
+    // if (answerRef.current == currentQuestionState.correct_answer) {
+    //   setScore(score + 1);
+    // }
+    console.log(answerRef.current.value);
+  };
+
   return (
     <>
-      <>
-        <label>1.</label>
-        <input type="radio" name="0" id="" />
-        <br />
-        <label>2.</label>
-        <input type="radio" name="0" id="" />
-        <br />
-        <label>3.</label>
-        <input type="radio" name="0" id="" />
-        <br />
-        <button onClick={() => props.handleChange(props.index + 1)}>
-          submit
-        </button>
-        <p>{props.index}</p>
-      </>
+      <h1>{currentQuestionState.question}</h1>
+      {updatedAnswers.map((answer, i) => (
+        <div key={i}>
+          <label htmlFor="answer">
+            {i + 1}. {answer}
+          </label>
+          <input type="radio" name="answer" ref={answerRef} />
+
+          <br />
+        </div>
+      ))}
+      <button onClick={() => props.handleChange(props.index + 1)}>skip</button>
+      <br />
+      <button onClick={handleSubmit}>Submit</button>
+      <p>score: {score}</p>
+      <p>Question {props.index + 1}</p>
     </>
   );
 };

@@ -49,7 +49,7 @@ const Question = (props: Props) => {
     // if (answerRef.current == currentQuestionState.correct_answer) {
     //   setScore(score + 1);
     // }
-    console.log(answerRef.current.value);
+    console.log(answerRef.current.label);
   };
 
   return (
@@ -60,7 +60,12 @@ const Question = (props: Props) => {
           <label htmlFor="answer">
             {i + 1}. {answer}
           </label>
-          <input type="radio" name="answer" ref={answerRef} />
+          <input
+            type="radio"
+            name="answer"
+            ref={answerRef}
+            placeholder="type or smt"
+          />
 
           <br />
         </div>
